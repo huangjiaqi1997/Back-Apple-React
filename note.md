@@ -9,3 +9,4 @@
 - UI = f (state)
 - CSS MODULE
 - STYLED COMPONENTS (chrome插件) (CSS in JS)
+- npx tsc --init
