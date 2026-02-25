@@ -1,73 +1,138 @@
-import { useState } from 'react'
-// import Logo from '../assets/react.svg?react'
-import { FaApple, FaBars } from 'react-icons/fa6'
-import { FaSearch } from 'react-icons/fa'
-import { MdLightMode, MdDarkMode } from 'react-icons/md'
+import Logo from "../assets/apple.svg?react";
+import { AiOutlineMenu, AiOutlineSearch } from "react-icons/ai";
+import { useState } from "react";
+import DarkToggle from "./DarkToggle";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { SHOPPING_PAGES } from "../assets/data/path";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const handleHbgClick = e => {
-    e.stopPropagation()
-    setIsMenuOpen(!isMenuOpen)
-  }
-  const handleHeaderClick = () => setIsMenuOpen(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSearchEnable, setIsSearchEnable] = useState(false);
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
 
-  const [showSearch, setShowSearch] = useState(false)
-  const handleSchClick = () => setShowSearch(!showSearch)
-
-  const [isDarkMode, setIsDarkMode] = useState(false)
-  const handleModeClick = () => {
-    setIsDarkMode(!isDarkMode)
-    document.documentElement.classList.toggle('dark')
-  }
-
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (query.trim()) {
+        navigate(`/search?query=${encodeURIComponent(query)}`);
+        setQuery("");
+      }
+    }
+  };
   return (
-    <div
-      className={`
-        sticky top-0 z-50
-        w-full h-16 px-4
-        flex justify-between items-center
-        text-base text-apple-dark bg-apple-light backdrop-blur-lg shadow-apple-md
-        dark:bg-apple-dark dark:text-apple-light`}
-      onClick={handleHeaderClick}>
+    <nav
+      className="flex items-center justify-between px-4 h-16  sticky top-0 z-50 
+      bg-apple-light
+      dark:bg-apple-dark 
+      shadow-apple-md
+      backdrop-blur-md"
+    >
+      <a href="#" className="text-xl font-bold">
+        <Logo className="w-6 h-6 hover:scale-105 transition-transform dark:fill-white" />
+      </a>
       <div
-        className={`fixed z-50 inset-0
-         bg-apple-black/50 backdrop-blur-md dark:bg-apple-white/10
-         ${isMenuOpen ? 'block' : 'hidden'}`}></div>
-
-      <FaApple className="cursor-pointer" size={24} />
-
-      <nav
-        className={`fixed right-0 text-center w-[50%] rounded-md md:relative md:text-center bg-apple-light md:bg-transparent md:mr-[24px] md:w-fit cursor-pointer ${isMenuOpen ? 'top-17' : 'hidden'} md:block dark:bg-apple-dark`}>
-        <ul className="flex-col gap-3 py-3 flex md:flex-row md:py-0 md:gap-8">
-          <li>商店</li>
-          <li>电脑</li>
-          <li>手机</li>
-          <li>智能家居</li>
-          <li>娱乐</li>
-          <li>技术支持</li>
-        </ul>
-      </nav>
-
-      <div className={`relative w-[50%] ${showSearch ? 'block' : 'hidden'}`}>
-        <input
-          className="peer w-full p-2 rounded-md border border-apple-gray-200 focus:ring-2 focus:ring-apple-blue focus:outline-none"
-          type="text"
-        />
-        <span className="absolute -z-10 left-2 top-2 peer-focus:text-xs peer-focus:text-apple-blue peer-focus:-translate-y-4 transition">
-          搜索
-        </span>
+        className="gap-6 hidden md:flex mx-auto
+        text-apple-text-light
+       dark:text-apple-text-dark"
+      >
+        {SHOPPING_PAGES.map((page) => (
+          <NavLink
+            key={page.path}
+            to={page.path}
+            className={({ isActive }) => `
+           hover:text-apple-blue ${
+             isActive
+               ? "text-apple-blue font-extrabold"
+               : "text-apple-text-light dark:text-apple-text-dark"
+           }
+        `}
+          >
+            {page.title}
+          </NavLink>
+        ))}
       </div>
-
-      <div className="flex gap-2">
-        <FaSearch size={24} className="cursor-pointer md:hidden" onClick={handleSchClick} />
-        <div className="cursor-pointer" onClick={handleModeClick}>
-          {isDarkMode ? <MdDarkMode size={24} /> : <MdLightMode size={24} />}
+      {isSearchEnable && (
+        <div className="relative">
+          <input
+            className="peer border
+           border-apple-gray-200 px-4 py-2 w-64 rounded-lg focus:outline-none focus:ring-2 
+           focus:ring-apple-blue transition"
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <label
+            className="absolute left-2 top-2
+            peer-focus:-top-2
+            peer-focus:text-xs
+            peer-focus:text-apple-blue
+            transition
+            text-apple-text-light
+            dark:text-apple-text-dark
+          "
+          >
+            搜索
+          </label>
         </div>
-        <FaBars size={24} className="md:hidden cursor-pointer" onClick={handleHbgClick}></FaBars>
+      )}
+      <div
+        className="gap-2 
+        text-apple-text-light
+        dark:text-apple-text-dark 
+        space-x-2"
+      >
+        <button onClick={() => setIsSearchEnable(!isSearchEnable)}>
+          <AiOutlineSearch size={24} />
+        </button>
+        <DarkToggle />
+        <button className="md:hidden" onClick={() => setIsOpen(true)}>
+          <AiOutlineMenu size={24} />
+        </button>
       </div>
-    </div>
-  )
-}
-
-export default Header
+      <div
+        className={`md:hidden fixed top-0 right-0 h-full w-64
+        ${!isOpen && "hidden"}
+        `}
+      >
+        <div
+          className="flex flex-col mt-17 space-y-6 
+        bg-apple-light
+        dark:bg-apple-dark
+          shadow-apple-md 
+          text-center p-6 rounded-lg 
+        text-apple-text-light
+        dark:text-apple-text-dark"
+        >
+          {SHOPPING_PAGES.map((page) => (
+            <NavLink
+              key={page.path}
+              to={page.path}
+              className={({ isActive }) => `
+            hover:text-apple-blue ${
+              isActive
+                ? "text-apple-blue font-extrabold"
+                : "text-apple-text-light dark:text-apple-text-dark"
+            }
+          `}
+              onClick={() => setIsOpen(false)}
+            >
+              {page.title}
+            </NavLink>
+          ))}
+        </div>
+      </div>
+      {isOpen && (
+        <div
+          className="fixed inset-0 
+          bg-apple-black/50 
+          dark:bg-apple-white/10
+          backdrop-blur-md"
+          onClick={() => setIsOpen(false)}
+        ></div>
+      )}
+    </nav>
+  );
+};
+export default Header;
