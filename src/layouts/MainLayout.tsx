@@ -1,5 +1,7 @@
+import { div } from "framer-motion/client";
 import { ReactNode } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigation } from "react-router-dom";
+import { Skeleton } from "@/components/Skeleton";
 
 const MainLayout = ({
   header,
@@ -8,12 +10,13 @@ const MainLayout = ({
   header?: ReactNode;
   footer?: ReactNode;
 }) => {
+  const navigation = useNavigation();
+
   return (
     <div className="bg-apple-light dark:bg-apple-dark">
       {header ?? <h1>默认标题</h1>}
       <div className="min-h-screen bg-apple-white dark:bg-apple-dark text-apple-text dark:text-apple-text-dark">
-        <Outlet />
-        {/* Outlet 用于渲染嵌套路由的内容 */}
+        {navigation.state === "loading" ? <Skeleton /> : <Outlet />}
       </div>
       {footer ?? <p>默认页脚</p>}
     </div>

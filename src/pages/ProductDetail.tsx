@@ -1,6 +1,7 @@
-import { useParams } from "react-router-dom";
+import { useParams, useLoaderData } from "react-router-dom";
 import { product_list } from "../assets/data/products";
 import { useNavigate } from "react-router-dom";
+import { Product } from "@/types/custom";
 
 type ParamsType = {
   id: string;
@@ -8,13 +9,7 @@ type ParamsType = {
 
 const PordcutDetail = () => {
   const navigate = useNavigate();
-
-  const { id } = useParams<ParamsType>();
-
-  const product = id
-    ? product_list.find((item) => item.id === parseInt(id))
-    : undefined;
-
+  const product = useLoaderData<Product>();
   if (!product) {
     // return <div>Product not found</div>;
     // 可以使用一个更友好的错误处理方式，比如重定向到404页面
@@ -26,7 +21,7 @@ const PordcutDetail = () => {
     <div>
       <h1>Product Detail</h1>
       <p>This is the product detail page.</p>
-      <p>{JSON.stringify(product)}</p>
+      <p>{JSON.stringify(product.features)}</p>
     </div>
   );
 };
