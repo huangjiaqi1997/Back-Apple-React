@@ -5,8 +5,10 @@ import IconButton from "./IconButton";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { MdOutlineNavigateNext } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const ImageHero = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   function sleepAsync(milliseconds: number) {
@@ -40,12 +42,14 @@ const ImageHero = () => {
       />
       {/* 文案+按钮区域 */}
       <div className="absolute inset-4 flex flex-col p-2 items-center justify-end text-center md:justify-start">
-        <div className="text-4xl md:text-6xl font-bold">iPhone 14 Pro</div>
+        <div className="text-4xl md:text-6xl font-bold">
+          {t(`home_page.image_hero.product_name`)}
+        </div>
         <div className="mt-4 flex space-x-4">
           <IconButton
             icon={<MdOutlineNavigateNext />}
             ioconPosition="right"
-            title="进一步了解"
+            title={t(`home_page.image_hero.learn_more`)}
             variant="primary"
             onClick={() => {
               fakeFetchData(); // 模拟数据获取
@@ -53,7 +57,7 @@ const ImageHero = () => {
           />
           <IconButton
             icon={<AiOutlineShoppingCart />}
-            title="购买"
+            title={t(`home_page.image_hero.buy`)}
             variant="outline"
           />
         </div>

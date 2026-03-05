@@ -1,8 +1,16 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Product } from "@/types/custom";
+import { useEffect, useState, useContext, useCallback, useMemo } from "react";
+import { CartItem, Product } from "@/types/custom";
 import { useDebounce } from "@/helpers/useDebounce";
 import Button from "@/components/Button";
+import SearchResultCard from "@/components/SearchResultCard";
+import { ShoppingCartContext } from "../contexts/shoppingCart";
+import FilterButton from "@/components/FilterButton";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, StoreDispatch } from "../redux/store";
+import { fetchSearchResults } from "../redux/searchSlice";
+
+const filters = ["全部", "电脑", "手机", "平板", "其他"];
 
 const SearchResults = () => {
   const navigate = useNavigate();
@@ -17,41 +25,26 @@ const SearchResults = () => {
     setSearchParams({ query: query || "", page: newPage.toString() });
   };
 
-  const [searchResults, setSearchResults] = useState<Product[]>([]); // 假设这是从API获取的搜索结果
-
-  const search = async (signal: AbortSignal) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5293/api/products?keyword=${debouncedQuery}`,
-        {
-          signal,
-        }
-      );
-      if (!response.ok) {
-        throw new Error("网络响应不是OK");
-      }
-      // 检查响应状态码是否为200
-      const data = await response.json();
-      console.log("Fetched data:", data);
-      setSearchResults(data);
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-      setSearchResults([]); // 出错时清空结果
-    }
-  };
+  const {
+    items: searchResults,
+    isLoading,
+    error,
+  } = useSelector((state: RootState) => state.search);
+  const dispatch = useDispatch<StoreDispatch>();
 
   useEffect(() => {
-    // 副作用逻辑
-    const constroller = new AbortController();
-    // 创建一个新的AbortController实例，用于取消请求
-    const signal = constroller.signal;
-    search(signal); // 调用搜索函数
+    if (!debouncedQuery) {
+      return;
+    }
+    const thunkPromise = dispatch(
+      fetchSearchResults({ keyword: debouncedQuery })
+    );
+
     return () => {
-      // 清理函数
-      console.log("清理函数执行，取消请求");
-      constroller.abort(); // 取消请求
+      // 组件卸载或关键词变化时取消未完成的请求
+      thunkPromise.abort();
     };
-  }, [debouncedQuery]); // 依赖数组
+  }, [debouncedQuery, dispatch]); // 依赖数组
   // 空数组 []：只在组件挂载（mount）时执行一次。
   // 有依赖：依赖变化时重新执行。
   // 不写依赖：每次渲染都会执行（不推荐，容易浪费性能）。
@@ -69,6 +62,41 @@ const SearchResults = () => {
       console.log("定时器已清除");
     };
   }, [query]); // 只在组件挂载时执行一次
+
+  const { addToCart } = useContext(ShoppingCartContext);
+
+  const handleAddToCart = useCallback((product: Product) => {
+    const cartItem = {
+      productId: product.id,
+      name: product.name,
+      imageSrc: product.image,
+      modelId: product.models[0].id,
+      model: product.models[0].name,
+      modelPrice: product.models[0].price,
+      memorySizeId: product.memorySizes[0].id,
+      memorySize: product.memorySizes[0].name,
+      memorySizePrice: product.memorySizes[0].price,
+      color: product.colors[0],
+      price:
+        product.startingPrice +
+        product.models[0].price +
+        product.memorySizes[0].price,
+      qty: 1,
+    };
+
+    addToCart(cartItem);
+  }, []);
+
+  const [selectedCategory, setSelectedCategory] = useState<string>("全部");
+
+  const filteredProducts = useMemo(() => {
+    return searchResults.filter((product) => {
+      const matchesCategory =
+        selectedCategory === "全部" || product.category === selectedCategory;
+      console.log("过滤后的产品：", product);
+      return matchesCategory;
+    });
+  }, [selectedCategory, searchResults]);
 
   return (
     <div className="min-h-screen p-8">
@@ -88,41 +116,39 @@ const SearchResults = () => {
         />
         <p className="mt-6">搜索关键词：{query}</p>
       </div>
+      {error && (
+        <div className="max-w-4xl mx-auto mb-6">
+          <p className="text-red-500 text-lg">{error}</p>
+        </div>
+      )}
+      {error == null && (
+        <div className="max-w-4xl mx-auto mb-6">
+          <p className="text-lg">
+            找到{" "}
+            <span className="font-semibold">{filteredProducts.length}</span>{" "}
+            个与“{debouncedQuery}”相关的产品
+          </p>
+        </div>
+      )}
+      <div className="max-w-4xl mx-auto mb-8 flex gap-4">
+        {filters.map((filter) => (
+          <FilterButton
+            key={filter}
+            filter={filter}
+            isSelected={filter == selectedCategory}
+            onClick={() => {
+              setSelectedCategory(filter);
+            }}
+          />
+        ))}
+      </div>
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-        {searchResults.map((product) => (
-          <div
+        {filteredProducts.map((product) => (
+          <SearchResultCard
             key={product.id}
-            className="bg-apple-gray-100 dark:bg-apple-gray-900 dark:border-apple-gray-500
-              rounded-2xl shadow-sm p-6
-              hover:transform hover:scale-105 transition-all duration-300
-            "
-          >
-            <div className="aspect-square object-contain rounded-xl">
-              <img
-                className="w-full h-full object-contain rounded-xl"
-                src={product.image}
-                alt={product.image}
-              />
-            </div>
-            <h3 className="text-2xl font-semibold mt-2">{product.name}</h3>
-            <p className="text-gray-400 mb-4">{product.title}</p>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-medium">
-                {product.startingPrice}
-              </span>
-              <div className="flex gap-3">
-                <Button title="立刻购买" />
-                <Button
-                  title="了解更多"
-                  variant="outline"
-                  onClick={() => navigate(`/product-detail/${product.id}`)}
-                />
-              </div>
-            </div>
-            {!product.inStock && (
-              <div className="mt-4 text-red-400">暂时缺货</div>
-            )}
-          </div>
+            product={product}
+            onAddToCart={handleAddToCart}
+          />
         ))}
       </div>
       <div className="flex items-center justify-center mt-8 gap-6">
