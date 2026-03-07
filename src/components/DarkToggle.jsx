@@ -1,27 +1,20 @@
 import { FiSun } from "react-icons/fi";
 import { FiMoon } from "react-icons/fi";
-import { useEffect, useState } from "react";
-import useLocalStorage from "@/hooks/useLocalStorage";
+import { useState } from "react";
 
 function DarkToggle() {
-  const [isDark, setIsDark] = useLocalStorage("darkMode", false);
+  const [isDark, setIsDark] = useState(false);
 
   const toggleDark = () => {
-    setIsDark((prev) => {
-      const newDarkMode = !prev;
-
-      return newDarkMode;
-    });
+    setIsDark(!isDark);
   };
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [isDark]);
+  const root = document.documentElement;
+  if (isDark) {
+    root.classList.add("dark");
+  } else {
+    root.classList.remove("dark");
+  }
 
   return (
     <button

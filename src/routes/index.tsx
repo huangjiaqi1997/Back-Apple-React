@@ -5,8 +5,12 @@ import UserLayout from "@/layouts/UserLayout";
 import { createBrowserRouter, LoaderFunctionArgs } from "react-router-dom";
 import {
   About,
+  Computers,
+  IPad,
   Entertainment,
   Support,
+  Phones,
+  SmartHome,
   SignIn,
   Register,
   Home,
@@ -16,9 +20,6 @@ import {
   SearchResults,
   UserCenter,
   ShoppingCart,
-  Category,
-  CheckOut,
-  OrderDetail,
 } from "../pages";
 import RequireAuth from "@/HOCs/RequireAuth";
 import { loadProducts } from "@/helpers/loaders";
@@ -34,18 +35,25 @@ const router = createBrowserRouter([
         element: <Home />,
         errorElement: <ErrorPage />,
       },
+      { path: "about", element: <About />, errorElement: <ErrorPage /> },
       {
-        path: "categories/:category",
-        element: <Category />,
+        path: "computers",
+        element: <Computers />,
         errorElement: <ErrorPage />,
       },
-      { path: "about", element: <About />, errorElement: <ErrorPage /> },
+      { path: "ipad", element: <IPad />, errorElement: <ErrorPage /> },
       {
         path: "entertainment",
         element: <Entertainment />,
         errorElement: <ErrorPage />,
       },
       { path: "support", element: <Support />, errorElement: <ErrorPage /> }, // 错误页面
+      {
+        path: "smarthome",
+        element: <SmartHome />,
+        errorElement: <ErrorPage />,
+      },
+      { path: "phones", element: <Phones />, errorElement: <ErrorPage /> },
       {
         path: "product-detail/:id", // product-detail/123
         element: <ProductDetail />,
@@ -67,8 +75,6 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
       },
       { path: "/cart", element: <ShoppingCart /> },
-      { path: "/checkout", element: <CheckOut /> },
-      { path: "/orders/:id", element: <OrderDetail /> },
       { path: "*", element: <NotFound /> },
     ],
   },

@@ -1,39 +1,27 @@
 import { c } from "node_modules/vite/dist/node/moduleRunnerTransport.d-CXw_Ws6P";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import useApiData from "@/hooks/useApiData";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, StoreDispatch } from "../redux/store";
-import { login } from "../redux/userSlice";
 
 function SignIn() {
-  const dispatch = useDispatch<StoreDispatch>();
-  const { token, loading, error } = useSelector(
-    (state: RootState) => state.user
-  );
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-
-    dispatch(login({ username: email, password }));
-  };
-
-  useEffect(() => {
-    if (loading) return;
-    if (!loading && error) alert(error);
-    if (!loading && token) {
-      localStorage.setItem("token", token);
-      navigate(
-        location.state?.from || "/", // 优先跳转来源页
-        { replace: true }
-      );
+    if (email !== "abc@123.com" || password !== "123456") {
+      alert("邮箱或密码错误，请重试。");
+      return;
     }
-  }, [token, error, loading]);
+    // 模拟登录逻辑
+    localStorage.setItem("token", "mocked_token"); // 模拟存储 token
+
+    navigate(
+      location.state?.from || "/", // 优先跳转来源页
+      { replace: true }
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-800 to-gray-900 flex items-center justify-center p-4">

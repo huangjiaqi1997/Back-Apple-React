@@ -1,31 +1,9 @@
-import { useEffect, useState } from "react";
-import { Skeleton } from "@components/Skeleton";
-import { SupportData } from "../types/custom";
-import useApiData from "@/hooks/useApiData";
-
 const Support = () => {
-  const { data, loading, error } = useApiData<SupportData>(
-    "http://localhost:5293/api/information/support"
-  );
-
-  if (loading) {
-    return <Skeleton />;
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        <p>加载数据失败: {error}</p>
-      </div>
-    );
-  }
+  throw new Error("Support 页面尚未实现");
 
   return (
-    <div className="min-h-screen text-apple-text dark:text-apple-text-dark">
-      <div
-        className="p-4 text-xs text-gray-500"
-        dangerouslySetInnerHTML={{ __html: data?.data || "" }}
-      ></div>
+    <div>
+      <h1>🏠 欢迎来到 Support 页面</h1>
     </div>
   );
 };

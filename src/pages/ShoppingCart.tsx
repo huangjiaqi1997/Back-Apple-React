@@ -1,11 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import { ShoppingCartContext } from "@/contexts/shoppingCart";
 import { Button, CartItem } from "@/components";
-import { useNavigate } from "react-router-dom";
 
 const shoppingCart = () => {
-  const navigate = useNavigate();
-  const { cartItems, updateItem, removeFromCart, clearCart } =
+  const { cartItems, updateItem, removeFromCart } =
     useContext(ShoppingCartContext);
 
   const [total, setTotal] = useState(0);
@@ -65,14 +63,8 @@ const shoppingCart = () => {
           <p className="text-right text-2xl">
             RMB {(total + shoppingFee).toLocaleString()}
           </p>
-          <div className="col-span-2 flex justify-end mt-12 space-x-4">
-            <Button title="清空购物车" onClick={clearCart}></Button>
-            <Button
-              title="结账"
-              onClick={() => {
-                navigate("/checkout");
-              }}
-            ></Button>
+          <div className="col-span-2 flex justify-end mt-12">
+            <Button title="结账"></Button>
           </div>
         </div>
       </div>
