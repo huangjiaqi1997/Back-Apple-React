@@ -1,92 +1,36 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
-interface UseApiOptions {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
-  body?: any;
-  headers?: Record<string, string>;
-  autoFetch?: boolean; // 是否在 mount 时自动请求
-}
-
-type ExtraOptions = {
-  overrideUrl?: string;
-  overrideMethod?: "GET" | "POST" | "PUT" | "DELETE";
-  overrideHeaders?: Record<string, string>;
-  overrideBody?: any;
-};
-
-const useApiData = <T>(apiUrl: string, options: UseApiOptions = {}) => {
-  const {
-    method = "GET",
-    body = null,
-    headers = {},
-    autoFetch = true,
-  } = options;
-
+const useApiData = <T>(apiUrl: string) => {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  const fetchData = async (extraOptions: ExtraOptions = {}) => {
+  const fetchData = async (signal: AbortSignal) => {
     try {
       setLoading(true);
-
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-
-      const response = await fetch(extraOptions?.overrideUrl || apiUrl, {
-        method: extraOptions?.overrideMethod || method,
-        headers: {
-          "Content-Type": "application/json",
-          ...headers,
-          ...extraOptions?.overrideHeaders,
-        },
-        body:
-          (extraOptions?.overrideMethod || method) !== "GET"
-            ? JSON.stringify(extraOptions?.overrideBody || body)
-            : undefined,
-        signal: controller.signal,
-      });
-
-      // 如果返回 401，拦截并处理
-      if (response.status === 401) {
-        console.warn("未授权, 清空token 并跳转登录");
-        localStorage.removeItem("token");
-        window.location.href = "/auth/signin";
-        return;
-      }
-
-      const result: T = await response.json();
+      setError(null);
+      const response = await fetch(apiUrl, { signal });
       if (!response.ok) {
         throw new Error("网络错误");
       }
+      const result: T = await response.json();
       console.log("加载数据:", result);
       setData(result);
-      setError(null);
     } catch (error) {
       console.error("加载数据失败:", error);
       setError(error instanceof Error ? error.message : "加载数据失败");
       setData(null);
     } finally {
       setLoading(false);
-      abortControllerRef.current = null;
     }
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+    fetchData(signal);
     return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!autoFetch) return;
-
-    fetchData();
-    return () => {
+      controller.abort(); // 清理函数，取消未完成的请求
       console.log("useEffect 清理");
     };
   }, [apiUrl]);
@@ -95,7 +39,6 @@ const useApiData = <T>(apiUrl: string, options: UseApiOptions = {}) => {
     data,
     loading,
     error,
-    fetchData,
   };
 };
 

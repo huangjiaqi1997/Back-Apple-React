@@ -5,12 +5,8 @@ import UserLayout from "@/layouts/UserLayout";
 import { createBrowserRouter, LoaderFunctionArgs } from "react-router-dom";
 import {
   About,
-  Computers,
-  IPad,
   Entertainment,
   Support,
-  Phones,
-  SmartHome,
   SignIn,
   Register,
   Home,
@@ -20,6 +16,7 @@ import {
   SearchResults,
   UserCenter,
   ShoppingCart,
+  Category,
 } from "../pages";
 import RequireAuth from "@/HOCs/RequireAuth";
 import { loadProducts } from "@/helpers/loaders";
@@ -35,25 +32,18 @@ const router = createBrowserRouter([
         element: <Home />,
         errorElement: <ErrorPage />,
       },
-      { path: "about", element: <About />, errorElement: <ErrorPage /> },
       {
-        path: "computers",
-        element: <Computers />,
+        path: "categories/:category",
+        element: <Category />,
         errorElement: <ErrorPage />,
       },
-      { path: "ipad", element: <IPad />, errorElement: <ErrorPage /> },
+      { path: "about", element: <About />, errorElement: <ErrorPage /> },
       {
         path: "entertainment",
         element: <Entertainment />,
         errorElement: <ErrorPage />,
       },
       { path: "support", element: <Support />, errorElement: <ErrorPage /> }, // 错误页面
-      {
-        path: "smarthome",
-        element: <SmartHome />,
-        errorElement: <ErrorPage />,
-      },
-      { path: "phones", element: <Phones />, errorElement: <ErrorPage /> },
       {
         path: "product-detail/:id", // product-detail/123
         element: <ProductDetail />,
