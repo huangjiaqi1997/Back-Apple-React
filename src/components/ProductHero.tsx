@@ -3,6 +3,7 @@ import { useState, useContext } from "react";
 import { produce } from "immer";
 import { Product, CartItem } from "@/types/custom";
 import { ShoppingCartContext } from "../contexts/shoppingCart";
+import { useTranslation } from "react-i18next";
 
 const updateItem = (updates: Partial<CartItem>) => {
   return produce((draft) => {
@@ -25,7 +26,7 @@ type ProductHeroProps = {
 
 function ProductHero({ product, imageUrl }: ProductHeroProps) {
   const { addToCart } = useContext(ShoppingCartContext);
-
+  const { t } = useTranslation();
   const [cartItem, setCartItem] = useState<CartItem>({
     productId: product.id,
     name: product.name,
@@ -69,14 +70,14 @@ function ProductHero({ product, imageUrl }: ProductHeroProps) {
       </div>
       <div className="flex-1 space-y-6 ml-6 md:ml-24">
         <div className="text-4xl font-black md:text-6xl">
-          购买 {product.name}
+          {t(`home_page.product_hero.title`)} {product.name}
         </div>
         <div className="font-medium md:text-xl">
           RMB {Number(product.startingPrice).toLocaleString("en-US")}
         </div>
         <div className="flex space-x-3">
           <SkuSelect
-            placeholder={"型号"}
+            placeholder={t(`home_page.product_hero.model`)}
             options={product.models.map((model) => model.name)}
             onChange={(value) => {
               const selectedModel = product.models.find(
@@ -95,7 +96,7 @@ function ProductHero({ product, imageUrl }: ProductHeroProps) {
             value={cartItem.model}
           />
           <SkuSelect
-            placeholder={"颜色"}
+            placeholder={t(`home_page.product_hero.color`)}
             options={product.colors}
             onChange={(value) => {
               setCartItem(updateItem({ color: value as string })); // 确保类型安全
@@ -103,7 +104,7 @@ function ProductHero({ product, imageUrl }: ProductHeroProps) {
             value={cartItem.color}
           />
           <SkuSelect
-            placeholder={"储存容量"}
+            placeholder={t(`home_page.product_hero.memory`)}
             options={product.memorySizes.map((size) => size.name)}
             onChange={(value) => {
               const selectedMemorySize = product.memorySizes.find(
@@ -132,7 +133,7 @@ function ProductHero({ product, imageUrl }: ProductHeroProps) {
               handleAddToCart();
             }}
           >
-            加入购物车
+            {t(`home_page.product_hero.add_cart`)}
           </button>
         </div>
       </div>

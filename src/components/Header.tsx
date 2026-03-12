@@ -15,14 +15,8 @@ import store, { RootState } from "../redux/store";
 import { languageSet, CultureCode } from "../redux/i18nReducer";
 import { setCulture } from "../redux/i18nSlice";
 import { useSelector, useDispatch } from "react-redux";
-import { AUTH_PAGES } from "../assets/data/path";
-import { parseJwt } from "../helpers/jwtHelper";
-import { logout } from "../redux/userSlice";
 
 const Header = () => {
-  const [username, setUsername] = useState<string | null>(null);
-  const { token } = useSelector((state: RootState) => state.user);
-
   const currentLanguage = useSelector<RootState, CultureCode>(
     (state) => state.i18n.currentLanguage
   );
@@ -63,23 +57,6 @@ const Header = () => {
     const nextLanguage = languageSet[nextIndex];
     dispatch(setCulture(nextLanguage));
     console.log("Dispatched language change to:", nextLanguage);
-  };
-
-  useEffect(() => {
-    if (token) {
-      // 解析token
-      const decode = parseJwt(token);
-      console.log("decode jwt: ", decode);
-      if (decode && decode.name) {
-        setUsername(decode.name);
-      }
-    }
-  }, [token]);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    setUsername(null);
-    navigate("/auth/signin");
   };
 
   return (
@@ -141,9 +118,10 @@ const Header = () => {
         </div>
       )}
       <div
-        className="
-        flex items-center
-        gap-2 space-x-2"
+        className="gap-2 
+        text-apple-text-light
+        dark:text-apple-text-dark 
+        space-x-2"
       >
         <button onClick={() => setIsSearchEnable((prev) => !prev)}>
           <AiOutlineSearch size={24} />
@@ -174,33 +152,6 @@ const Header = () => {
             )}
           </AnimatePresence>
         </button>
-        {username ? (
-          <>
-            <span className="hidden md:block">{username}</span>
-            <button
-              className="hidden md:block hover: text-apple-blue"
-              onClick={handleLogout}
-            >
-              登出
-            </button>
-          </>
-        ) : (
-          AUTH_PAGES.map((page) => (
-            <NavLink
-              key={page.id}
-              to={page.path}
-              className={({ isActive }) =>
-                `hover:text-apple-blue hidden md:block ${
-                  isActive
-                    ? "text-apple-blue font-extrabold"
-                    : "text-apple-text dark:text-apple-text-dark"
-                }`
-              }
-            >
-              {page.title}
-            </NavLink>
-          ))
-        )}
         <button className="md:hidden" onClick={() => setIsOpen(true)}>
           <AiOutlineMenu size={24} />
         </button>
@@ -235,31 +186,6 @@ const Header = () => {
               {page.title}
             </NavLink>
           ))}
-          <hr className="border-t border-gray-300" />
-          {username ? (
-            <>
-              <span>{username}</span>
-              <button className="hover: text-apple-blue" onClick={handleLogout}>
-                登出
-              </button>
-            </>
-          ) : (
-            AUTH_PAGES.map((page) => (
-              <NavLink
-                key={page.id}
-                to={page.path}
-                className={({ isActive }) =>
-                  `hover:text-apple-blue ${
-                    isActive
-                      ? "text-apple-blue font-extrabold"
-                      : "text-apple-text dark:text-apple-text-dark"
-                  }`
-                }
-              >
-                {page.title}
-              </NavLink>
-            ))
-          )}
         </div>
       </div>
       {isOpen && (
